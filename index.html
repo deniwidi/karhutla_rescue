@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>KARHUTLA RESCUE - 8-Bit Forest Conservation Game</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div id="arcade-shell">
+    <!-- 8-Bit Arcade Top HUD -->
+    <header id="hud-bar" class="pixel-panel" aria-label="Game Status and Controls">
+      <div class="hud-brand">
+        <span class="brand-badge" aria-hidden="true"></span>
+        <span class="brand-title">KARHUTLA RESCUE</span>
+      </div>
+
+      <div class="hud-stats">
+        <div class="stat-pill" title="Current Level">
+          <span class="stat-label">LVL</span>
+          <span id="hud-level" class="stat-val">1/4</span>
+        </div>
+        <div class="stat-pill stat-ammo" title="Water Balloons Remaining">
+          <span class="icon-drop" aria-hidden="true"></span>
+          <span class="stat-label">AMMO</span>
+          <span id="hud-ammo" class="stat-val">6</span>
+        </div>
+        <div class="stat-pill stat-fires" title="Burning Trees Remaining">
+          <span class="icon-fire" aria-hidden="true"></span>
+          <span class="stat-label">FIRES</span>
+          <span id="hud-fires" class="stat-val">3</span>
+        </div>
+        <div class="stat-pill stat-score" title="Total Score">
+          <span class="stat-label">SCORE</span>
+          <span id="hud-score" class="stat-val">00000</span>
+        </div>
+      </div>
+
+      <div class="hud-controls">
+        <button id="btn-pause" class="pixel-btn btn-amber" type="button" title="Pause Game (P)">PAUSE</button>
+        <button id="btn-restart" class="pixel-btn btn-blue" type="button" title="Restart Level (R)">RETRY</button>
+        <button id="btn-mute" class="pixel-btn btn-dark" type="button" title="Toggle Sound (M)">SFX:ON</button>
+      </div>
+    </header>
+
+    <!-- Main 16:9 Retro Canvas Stage -->
+    <main id="stage-wrap">
+      <div id="canvas-frame">
+        <canvas id="game-canvas" width="480" height="270" aria-label="Karhutla Rescue Game Canvas"></canvas>
+
+        <!-- Subtle optional CRT scanline sheen (pointer-events: none) -->
+        <div class="scanlines" aria-hidden="true"></div>
+
+        <!-- TITLE SCREEN OVERLAY -->
+        <section id="overlay-title" class="game-overlay active" aria-label="Title Screen">
+          <div class="title-card pixel-box">
+            <div class="title-kicker">8-BIT CONSERVATION ARCADE</div>
+            <h1 class="pixel-logo" aria-label="KARHUTLA RESCUE">
+              <span class="logo-line logo-fire">KARHUTLA</span>
+              <span class="logo-line logo-water">RESCUE</span>
+            </h1>
+            <p class="title-tagline">TEAM UP WITH RHINO, MONKEY &amp; TIGER TO PUT OUT THE WILDFIRES!</p>
+            <div class="title-actions">
+              <button id="btn-play" class="pixel-btn btn-green btn-lg" type="button">PLAY</button>
+            </div>
+            <div class="controls-hint">
+              <span>DRAG BACK ON SLINGSHOT TO AIM</span>
+              <span class="dot-sep">&bull;</span>
+              <span>RELEASE TO LAUNCH WATER BALLOON</span>
+            </div>
+          </div>
+        </section>
+
+        <!-- CUTSCENE OVERLAY (SKIP BUTTON ONLY; DIALOGUE RENDERED IN-CANVAS) -->
+        <section id="overlay-cutscene" class="game-overlay overlay-passthrough" aria-label="Opening Cutscene">
+          <button id="btn-skip" class="pixel-btn btn-amber skip-btn" type="button">SKIP &gt;&gt;</button>
+        </section>
+
+        <!-- PAUSE OVERLAY -->
+        <section id="overlay-pause" class="game-overlay" aria-label="Game Paused">
+          <div class="modal-card pixel-box">
+            <h2 class="modal-title title-amber">PAUSED</h2>
+            <p class="modal-sub" id="pause-level-name">LEVEL 1 - FOREST EDGE</p>
+            <div class="modal-actions">
+              <button id="btn-resume" class="pixel-btn btn-green btn-md" type="button">RESUME</button>
+              <button id="btn-pause-restart" class="pixel-btn btn-blue btn-md" type="button">RESTART</button>
+              <button id="btn-pause-title" class="pixel-btn btn-dark btn-md" type="button">TITLE</button>
+            </div>
+          </div>
+        </section>
+
+        <!-- VICTORY OVERLAY -->
+        <section id="overlay-victory" class="game-overlay" aria-label="Level Complete">
+          <div class="modal-card pixel-box">
+            <h2 id="victory-heading" class="modal-title title-green">FOREST SAVED!</h2>
+            <p id="victory-sub" class="modal-sub">ALL WILDFIRES EXTINGUISHED</p>
+            <div id="victory-stars" class="stars-row" aria-label="Star Rating">
+              <span class="pixel-star" data-star="1"></span>
+              <span class="pixel-star" data-star="2"></span>
+              <span class="pixel-star" data-star="3"></span>
+            </div>
+            <div class="score-breakdown">
+              <div class="score-row">
+                <span>FIRES SAVED</span>
+                <span id="val-fires-score">+1500</span>
+              </div>
+              <div class="score-row">
+                <span>BALLOON BONUS</span>
+                <span id="val-ammo-bonus">+600</span>
+              </div>
+              <div class="score-row score-total">
+                <span>TOTAL SCORE</span>
+                <span id="val-total-score">2100</span>
+              </div>
+            </div>
+            <div class="modal-actions">
+              <button id="btn-next-level" class="pixel-btn btn-green btn-md" type="button">NEXT LEVEL</button>
+              <button id="btn-victory-replay" class="pixel-btn btn-blue btn-md" type="button">REPLAY</button>
+            </div>
+          </div>
+        </section>
+
+        <!-- GAME OVER OVERLAY -->
+        <section id="overlay-gameover" class="game-overlay" aria-label="Game Over">
+          <div class="modal-card pixel-box">
+            <h2 class="modal-title title-red">OUT OF BALLOONS!</h2>
+            <p id="gameover-sub" class="modal-sub">THE FOREST STILL NEEDS YOUR HELP!</p>
+            <div class="score-breakdown">
+              <div class="score-row">
+                <span>FIRES LEFT</span>
+                <span id="val-fires-left">2</span>
+              </div>
+              <div class="score-row score-total">
+                <span>SCORE</span>
+                <span id="val-gameover-score">00500</span>
+              </div>
+            </div>
+            <div class="modal-actions">
+              <button id="btn-try-again" class="pixel-btn btn-amber btn-md" type="button">TRY AGAIN</button>
+              <button id="btn-gameover-title" class="pixel-btn btn-dark btn-md" type="button">TITLE</button>
+            </div>
+          </div>
+        </section>
+      </div>
+    </main>
+  </div>
+
+  <script src="game.js"></script>
+</body>
+</html>
